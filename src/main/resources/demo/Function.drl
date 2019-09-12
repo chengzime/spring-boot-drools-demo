@@ -1,0 +1,67 @@
+package rules
+
+import cn.com.chengzi.drools.domain.model.User
+
+// 新增
+rule "insert"
+    when
+
+    then
+      insert(new User("赵六",12));
+      System.err.println("创造赵六");
+end
+
+
+// 修改
+rule "update"
+    when
+       $u:User(name=="赵六")
+    then
+        $u.setName("王五");
+        update($u);
+        System.err.println("赵六修改为: " + $u.getName());
+end
+
+
+// 删除
+rule "retract"
+    when
+         $u:User(name=="王五")
+    then
+        System.err.println("删除王五!");
+        retract($u);
+end
+
+
+// 上面删除后, 没有了 name 为王五的对象, 此不会执行
+rule "test4"
+    when
+        $u:User(name == "王五")
+    then
+        System.err.println("王五删除删除之后: " + $u.getName());
+end
+
+// function是一种将语义代码放置在规则源文件中的方法，而不是普通的Java类
+function String hello(String name) {
+  return "Hello "+name+"!";
+}
+
+rule "using a static function"
+    when
+      eval(true)
+    then
+      System.err.println(hello( "Bob" ));
+end
+
+
+// query是一种搜索工作内存中与指定条件匹配的事实的简单方法.
+//对所有30岁以上的人的简单查询
+query "user over the age of 30"
+    user : User( age > 30 )
+end
+
+// 查询超过x岁的人，以及居住在y的人
+query "user over the age of x"  (int x, String y)
+    user : User( age > x, location == y )
+end
+

@@ -1,0 +1,130 @@
+package rules
+
+import cn.com.chengzi.drools.domain.model.ReadingLevelTest
+import cn.com.chengzi.drools.domain.model.ReadingResult
+import cn.com.chengzi.drools.domain.model.ReadingLevel
+import cn.com.chengzi.drools.domain.util.RandomUtil
+import java.util.List
+
+// 获取档次值
+rule "read-GearValue"
+when
+    $rlt:ReadingLevelTest(gearValue == null,totalWordsNum ==null,totalSecondTime == null)
+then
+    $rlt.setGearValue(4);
+    $rlt.setTotalWordsNum(0);
+    $rlt.setTotalSecondTime(0);
+    $rlt.getResultList().forEach(x -> {
+        $rlt.setGearValue($rlt.getGearValue() + x.getStatus());
+        $rlt.setTotalWordsNum($rlt.getTotalWordsNum() + x.getWordsNum());
+        $rlt.setTotalSecondTime($rlt.getTotalSecondTime() + x.getSecondTime());
+    });
+    update($rlt);
+    System.out.println("测评结果档位: " + $rlt.toString());
+ end
+
+// 读速
+rule "read-Reading-speed"
+when
+    $rlt:ReadingLevelTest(totalWordsNum != null,totalSecondTime != null)
+    $rl:ReadingLevel(readingSpeed == null)
+then
+    $rl.setReadingSpeed($rlt.getTotalWordsNum()*60/$rlt.getTotalSecondTime());
+    update($rl);
+    System.out.println("测评结果读速: " + $rl.toString());
+ end
+
+// 一二年级 第一档次 fr 值
+rule "fr-grade-12-gearValue-1"
+when
+    $rlt:ReadingLevelTest(gearValue == 1)
+    $rl:ReadingLevel(fancyRead == null,grade >= 1,grade <= 2)
+then
+    $rl.setFancyRead(200 + RandomUtil.randomFromTo(-10,10));
+    $rl.setRemark("弱");
+    update($rl);
+    System.out.println("测评结果FR: " + $rl.toString());
+ end
+
+// 一二年级 第二档次 fr 值
+rule "fr-grade-12-gearValue-2"
+when
+    $rlt:ReadingLevelTest(gearValue == 2)
+    $rl:ReadingLevel(fancyRead == null,grade >= 1,grade <= 2)
+then
+    $rl.setFancyRead(260 + RandomUtil.randomFromTo(-10,10));
+    $rl.setRemark("较弱");
+    update($rl);
+    System.out.println("测评结果FR: " + $rl.toString());
+ end
+
+// 一二年级 第三档次 fr 值
+rule "fr-grade-12-gearValue-3"
+when
+    $rlt:ReadingLevelTest(gearValue == 3)
+    $rl:ReadingLevel(fancyRead == null,grade >= 1,grade <= 2)
+then
+    $rl.setFancyRead(320 + RandomUtil.randomFromTo(-10,10));
+    $rl.setRemark("偏弱");
+    update($rl);
+    System.out.println("测评结果FR: " + $rl.toString());
+ end
+
+// 一二年级 第四档次 fr 值
+rule "fr-grade-12-gearValue-4"
+when
+    $rlt:ReadingLevelTest(gearValue == 4)
+    $rl:ReadingLevel(fancyRead == null,grade >= 1,grade <= 2)
+then
+    $rl.setFancyRead(380 + RandomUtil.randomFromTo(-10,10));
+    $rl.setRemark("中等");
+    update($rl);
+    System.out.println("测评结果FR: " + $rl.toString());
+ end
+
+// 一二年级 第五档次 fr 值
+rule "fr-grade-12-gearValue-5"
+when
+    $rlt:ReadingLevelTest(gearValue == 5)
+    $rl:ReadingLevel(fancyRead == null,grade >= 1,grade <= 2)
+then
+    $rl.setFancyRead(440 + RandomUtil.randomFromTo(-10,10));
+    $rl.setRemark("较高");
+    update($rl);
+    System.out.println("测评结果FR: " + $rl.toString());
+ end
+
+// 一二年级 第六档次 fr 值
+rule "fr-grade-12-gearValue-6"
+when
+    $rlt:ReadingLevelTest(gearValue == 6)
+    $rl:ReadingLevel(fancyRead == null,grade >= 1,grade <= 2)
+then
+    $rl.setFancyRead(500 + RandomUtil.randomFromTo(-10,10));
+    $rl.setRemark("优秀");
+    update($rl);
+    System.out.println("测评结果FR: " + $rl.toString());
+ end
+
+// 一二年级 第七档次 fr 值
+rule "fr-grade-12-gearValue-7"
+when
+    $rlt:ReadingLevelTest(gearValue == 7)
+    $rl:ReadingLevel(fancyRead == null,grade >= 1,grade <= 2)
+then
+    $rl.setFancyRead(560 + RandomUtil.randomFromTo(-10,10));
+    $rl.setRemark("极高");
+    update($rl);
+    System.out.println("测评结果FR: " + $rl.toString());
+ end
+
+// 适读范围
+rule "fr-reading-max-min"
+when
+    $rl:ReadingLevel(fancyRead != null,readingMinFr == null,readingMaxFr == null)
+then
+    $rl.setReadingMaxFr($rl.getFancyRead() + 50);
+    $rl.setReadingMinFr($rl.getFancyRead() - 200 < 0 ? 0 : $rl.getFancyRead() - 200);
+    update($rl);
+    System.out.println("测评结果适度范围: " + $rl.toString());
+ end

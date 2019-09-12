@@ -1,0 +1,59 @@
+package rules;
+import cn.com.chengzi.drools.domain.model.User
+import java.util.List
+
+// hell word
+rule "Hello,Word"
+    when
+        eval(true)
+    then
+        System.err.println("Hello,Word!");
+     end
+
+// 设置变量, 修改 java 对象的值
+rule "user"
+    when
+      $u:User(name == "张三", age == 18)
+    then
+        $u.setName("李四");
+        System.err.println("hello,word："+$u.getName());
+end
+
+// 某个对象包含领一个对象
+rule "contains"
+    when
+      $s:String()
+      $u:User(name contains $s)
+    then
+        System.err.println("用户张三存在");
+end
+
+// 某个对象存在与某个集合中, not memberOf 相反
+rule "memberOf"
+    when
+      $list:List()
+      $u:User(name memberOf $list)
+    then
+        System.err.println("用户李四存在");
+end
+
+// 正则匹配, not matches 相反
+rule "matches"
+    when
+        $u:User(name matches "张.*")
+    then
+        System.err.println("用户张xx存在: " + $u.getName());
+end
+
+
+// 测试 from, from可以接受 service 的方法调用后的结果集，也可以指向一个对象或者一个集合
+rule "from"
+    when
+        $list:List(size > 0)
+        $u:User() from $list.get(0)
+    then
+        System.err.println("通过 from 获取到的 : " + $u.toString());
+     end
+
+
+// exists 检查 Working Memory 是否存在某物

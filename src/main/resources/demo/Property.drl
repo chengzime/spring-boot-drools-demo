@@ -1,0 +1,92 @@
+package rules
+import java.util.ArrayList
+import cn.com.chengzi.drools.domain.model.User
+
+//优先级, salience 属性默认值为 0, 数值越大优先级越高
+//同时它的值可以是一个负数.
+//规则的salience 默认值为0，所以如果我们不手动设置规则的salience 属性，那么它的执行顺序是随机的.
+rule "salience2"
+salience 2
+    when
+        eval(true)
+    then
+        System.err.println("salience2");
+end
+
+rule "salience1"
+salience 1
+    when
+        eval(true)
+    then
+        System.err.println("salience1");
+end
+
+// date-effective日期比较（小于等于）
+// 需要注意的是Drools默认的时间格式是dd-MMM-yyyy的，也就是说你必须使用24-十一月-2018它才能识别，我为什么能使用yyyy-MM-dd呢，请参考上篇文章中进行自动配置时的getKieServices()方法
+rule "dateEffective"
+date-effective "2000-09-05"
+    when
+        eval(true)
+    then
+        System.err.println("测试小于等于 : 2000-09-05被执行");
+end
+
+// date-expires 日期比较（大于）
+rule "dateExpires"
+date-expires "2050-09-05"
+    when
+        eval(true)
+    then
+        System.err.println("测试大于 : 2050-09-05被执行");
+end
+
+// enabled 是否禁
+rule "enabled"
+enabled false
+    when
+        eval(true)
+    then
+        System.err.println("被禁用的规则");
+end
+
+
+
+// 全局变量 global
+global java.util.List myGlobalList;
+
+rule "Using a global"
+when
+  eval(true)
+then
+  myGlobalList = new ArrayList();
+  myGlobalList.add("Hello World");
+  System.err.println(myGlobalList);
+end
+
+
+// 不允许循环执行 no-loop : 定义当前的规则是否不允许多次循环执行，默认是 false，也就是当前的规则只要满足条件，可以无限次执行
+//rule "Using no-loop false"
+//no-loop false
+//when
+//  $u:User(age >= 0)
+//then
+//  update($u.setAge($u.getAge() + 1));
+//  System.err.println("no-loop false : " + $u.getName() + " 的年龄是 " + $u.getAge());
+//end
+
+rule "Using no-loop true"
+no-loop true
+when
+  $u:User(age >= 0)
+then
+  update($u.setAge($u.getAge() + 1));
+  System.err.println("no-loop true : " + $u.getName() + " 的年龄是 " + $u.getAge());
+end
+
+//rule "Using no-loop default"
+//when
+//  $u:User(age >= 0)
+//then
+//  update($u.setAge($u.getAge() + 1));
+//  System.err.println("no-loop default : " + $u.getName() + " 的年龄是 " + $u.getAge());
+//end
